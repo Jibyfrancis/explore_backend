@@ -5,7 +5,6 @@ import { UserDbInterface } from "../../repositories/userDbRepository";
 import { AuthServiceInterface } from "../../services/authserviceInterface";
 import { CreateUserInterface, CreateGoogleUserInterface } from "../../../type/userInterface";
 
-
 export const userRegister = async (user: CreateUserInterface,
     userRepository: ReturnType<UserDbInterface>,
     authService: ReturnType<AuthServiceInterface>,
@@ -16,12 +15,13 @@ export const userRegister = async (user: CreateUserInterface,
         return token
 
     }else{
-
         user.password = await authService.encryptPassword(user.password)
-        const { _id: userId } = await userRepository.addUser(user)
-        const token = authService.generateToken(userId.toString())
+        const usersData = await userRepository.addUser(user)
+        const token = authService.generateToken(usersData._id.toString())
         
-        return token
+        return {
+            token,usersData
+        }
     }
 
 }
@@ -57,18 +57,20 @@ export const userGoogleLogin = (async (user: CreateGoogleUserInterface,
     const isGoogleUser = await userRepository.findUserByEmail(user.email)
     if (isGoogleUser) {
         const token = authService.generateToken(isGoogleUser._id.toString())
-        console.log(token);
-
         return {
             token,
+            isGoogleUser,
             message: 'user exist'
         }
 
     } else {
 
-        const { _id: userId } = await userRepository.addGoogleUser(user)
-        const token = authService.generateToken(userId.toString())
-        return token
+        const usersData  = await userRepository.addGoogleUser(user)
+        const token = authService.generateToken(usersData.toString())
+        return {
+            token,
+            usersData
+        } 
     }
 
 })
