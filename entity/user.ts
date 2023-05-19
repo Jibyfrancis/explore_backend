@@ -1,31 +1,15 @@
-export interface User {
-    getUserName: () => string
-    getEmail: () => string,
-    getMobile: () => string,
-    getPassword: () => string,
-    getIsGoogleuser: () => boolean,
-    getPhotoUrl: () => string,
-    GetIsHosted: () => boolean
-}
+export default function userEntity(...args: any) {
+  console.log(args[0].email);
 
-export default function createUser(
-    userName: string,
-    email: string,
-    mobile: string,
-    password: string,
-    isGoogleUser: boolean,
-    photoUrl: string,
-    isHosted: boolean
-): User {
-
-    return {
-
-        getUserName: () => userName,
-        getEmail: () => email,
-        getMobile: () => mobile,
-        getPassword: () => password,
-        getIsGoogleuser: () => isGoogleUser,
-        getPhotoUrl: () => photoUrl,
-        GetIsHosted: () => isHosted,
-    }
+  return {
+    getUserName: () => args[0].userName,
+    getEmail: () => args[0].email,
+    getPassword: () => args[0].password,
+    getMobile: () => args[0].mobile,
+    getIsGoogleuser: () => args[0].isGoogleUser,
+    getPhotoUrl: () => args[0].photoUrl,
+    getIsHosted: () => args[0].isHosted,
+    getIsActive:()=>args[0].isActive,
+    getHostingRequest:()=>args[0].hostingRequest
+  };
 }

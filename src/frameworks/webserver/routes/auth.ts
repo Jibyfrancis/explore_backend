@@ -4,6 +4,8 @@ import { userDbrepository } from "../../../application/repositories/userDbReposi
 import { authServiceInterface } from "../../../application/services/authserviceInterface"
 import { authServices } from "../../services/authServices"
 import { userRepositoryMongoDB} from "../../database/repositories/userRepositoryMongodb"
+import { adminDbReopsitory } from "../../../application/repositories/adminDbRepository"
+import { adminRepositoryMongoDB } from "../../database/repositories/adminRerpositoryMongoDB"
 
 
 
@@ -15,12 +17,14 @@ const authRouter = () => {
         userRepositoryMongoDB,
         authServiceInterface,
         authServices,
+        adminDbReopsitory,
+        adminRepositoryMongoDB
 )
 
     router.post('/userRegister',controllers.registerUser)
     router.post('/userLogin',controllers.loginUser)
     router.post('/userGoogleLogin',controllers.googleLoginUser)
-    // router.post('/userNumberSignup',controllers.numberSignupUser)
+    router.post('/adminLogin',controllers.loginAdmin)
   
     return router
 }

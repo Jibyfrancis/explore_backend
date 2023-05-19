@@ -1,5 +1,5 @@
-import mongoos, { Schema, model } from 'mongoose'
-const userSchema =new Schema( {
+import { Schema, model } from 'mongoose'
+const userSchema = new Schema({
     userName: {
         type: String,
         required: [true, 'please fill full name']
@@ -8,24 +8,32 @@ const userSchema =new Schema( {
         type: String,
         required: [true, 'please fill email']
     },
-    mobile: {
-        type: String,
-        
-    },
     password: {
         type: String,
     },
-    isGoogleUser:{
-        type: Boolean,
-        default:false
+    mobile: {
+        type: String,
+
     },
-    photoUrl:{
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+    isGoogleUser: {
+        type: Boolean,
+        default: false
+    },
+    photoUrl: {
         type: String,
     },
-    isHosted:{
+    isHosted: {
         type: Boolean,
-        default:false
+        default: false
+    },
+    hostingRequest: {
+        type: Boolean,
+        default: false
     }
 })
-const User = model('User',userSchema,'users')
+const User = model('User', userSchema, 'users')
 export default User

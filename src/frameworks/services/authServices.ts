@@ -18,10 +18,15 @@ export const authServices = () => {
     return token;
   };
 
+  const verifyToken=(token:string)=>{
+    return jwt.verify(token, configKeys.jwtSecret)
+}
+
   return {
     encryptPassword,
     generateToken,
     comparePassword,
+    verifyToken
   };
 };
 export type AuthService = typeof authServices;
