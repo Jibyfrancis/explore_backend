@@ -21,8 +21,10 @@ export const adminRepositoryMongoDB = () => {
     return users;
   };
   const changeStausUser = async (id: string, value: boolean) => {
-    User.updateOne({ _id: new ObjectId(id) }, [
-      { $set: { isBlocked: { $not: "$isBlocked" } } },
+    console.log(id);
+    
+   return User.updateOne({ _id: new ObjectId(id) }, [
+      { $set: { isActive: { $not: "$isActive" } } },
     ])
   };
   const getAllHostRequest = async () => {

@@ -37,12 +37,15 @@ const adminController = (
     const changeUserStatus = asyncHandler(async (req: Request, res: Response) => {
         const { id, value }: { id: string; value: boolean } = req.body;
         const user = await changeStausUser(id, value, dbRepositoryAdmin);
+        res.json({
+            status:'Success'
+        })
     });
     const getAllHostRequest = asyncHandler(
         async (req: Request, res: Response) => {
             const hosts = await findAllHostRequest(dbRepositoryAdmin);
             res.json({
-                status: "success",
+                status: "Success",
                 hosts,
             });
         }

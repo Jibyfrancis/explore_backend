@@ -4,7 +4,7 @@ export interface UserInterface{
     email:string,
     mobile:string,
     password:string,
-    isBlocked:boolean,
+    isActive:boolean,
     isGoogleUser:boolean,
     photoUrl:string,
     isHosted:boolean,
@@ -15,7 +15,7 @@ export interface CreateUserInterface{
     email:string,
     mobile:string,
     password:string,
-    isBlocked?:boolean,
+    isActive?:boolean,
     isGoogleUser?:boolean,
     photoUrl?:string,
     isHosted?:boolean
@@ -25,5 +25,5 @@ export interface CreateGoogleUserInterface{
     email:string,
     photoUrl:string,
     isGoogleUser:boolean
-    isBlocked?:boolean,
+    isActive?:boolean,
 }

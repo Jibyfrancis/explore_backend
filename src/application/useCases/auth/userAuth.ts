@@ -45,16 +45,19 @@ export const userLogin = async (
   if (!user) {
     throw new AppError("user does not exist", HttpStatus.UNAUTHORIZED);
   }
+  if (!user.isActive) {
+    throw new AppError("Please contact Admin-User Blocked", HttpStatus.UNAUTHORIZED);
+  }
 
+  if (user.isGoogleUser) {
+    throw new AppError("please login with Google", HttpStatus.UNAUTHORIZED);
+  }
   const isPasswordIncorrect = await authService.comparePassword(
     password,
     user.password
   );
   if (!isPasswordIncorrect) {
     throw new AppError("password incorrect", HttpStatus.UNAUTHORIZED);
-  }
-  if (user.isGoogleUser) {
-    throw new AppError("please login with google", HttpStatus.UNAUTHORIZED);
   }
   const token = authService.generateToken(user._id.toString());
 
@@ -70,6 +73,12 @@ export const userGoogleLogin = async (
   authService: ReturnType<AuthServiceInterface>
 ) => {
   const isGoogleUser = await userRepository.findUserByEmail(user.email);
+
+  if (!isGoogleUser?.isActive) {
+    throw new AppError("Please contact Admin-User Blocked", HttpStatus.UNAUTHORIZED);
+  }
+
+
   if (isGoogleUser) {
     const token = authService.generateToken(isGoogleUser._id.toString());
     return {
