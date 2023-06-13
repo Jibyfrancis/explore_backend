@@ -30,6 +30,7 @@ const userRouter=()=>{
     router.get('/get-all-property',controller.findAllProperty)
     router.get('/property-detail/:id',controller.findPropertyById)
     
+    
 
     return router
 
