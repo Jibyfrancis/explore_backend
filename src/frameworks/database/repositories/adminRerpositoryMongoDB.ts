@@ -84,6 +84,15 @@ export const adminRepositoryMongoDB = () => {
     return propertyTpe;
   };
 
+  const findPropertyTypeById = async (id: string) => {
+    const propertyType: PropertyTypeInterface | null = await PropertyType.findOne({ _id: new ObjectId(id) });
+    return propertyType
+  }
+
+  const deletePropertyType=async(id:string)=>{
+    return PropertyType.deleteOne({_id:new ObjectId(id)})
+  }
+
   return {
     adminLogin,
     getAllusers,
@@ -95,7 +104,9 @@ export const adminRepositoryMongoDB = () => {
     createPropertyType,
     getAllPropertyType,
     findAmenityById,
-    deleteAmenity
+    deleteAmenity,
+    findPropertyTypeById,
+    deletePropertyType
   };
 };
 

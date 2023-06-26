@@ -2,13 +2,28 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { HostDbInterface } from "../../application/repositories/hostDbRepository";
 import { HostRepositoryMongoDb } from "../../frameworks/database/repositories/hostRepositoryMongodb";
-import { getUserById, hostRegister, createPropery,getPropertyByUserId,getAllProperty,getPropertyById} from "../../application/useCases/user/host";
+import {
+    getUserById,
+    hostRegister,
+    createPropery,
+    getPropertyByUserId,
+    getAllProperty,
+    getPropertyById,
+    createOrder,
+    confirmNewOrder,
+    getAllBooking,
+    cancelBooking
+} from "../../application/useCases/user/host";
 import { Types } from "mongoose";
 import { UserDbInterface } from "../../application/repositories/userDbRepository";
 import { UserRepositoryMongoDB } from "../../frameworks/database/repositories/userRepositoryMongodb";
 import { CloudService } from "../../frameworks/services/cludService";
 import { CloudServiceInterface } from "../../application/services/cloudServiceInterface";
 import { CreatePropertyInterface } from "../../type/createPropertyInterface";
+import { PaymentService } from "../../frameworks/services/paymentService";
+import { PaymentServiceInterface } from "../../application/services/paymentserviceInterface";
+import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
+import { OrderInterface } from "../../type/orderInterface";
 
 const userController = (
     hostDbRepository: HostDbInterface,
@@ -16,12 +31,14 @@ const userController = (
     userDbRepository: UserDbInterface,
     userDbRepositoryImpl: UserRepositoryMongoDB,
     cloudServiceInterface: CloudServiceInterface,
-    cloudServiceImpl: CloudService
-
+    cloudServiceImpl: CloudService,
+    paymentServiceImpl: PaymentService,
+    paymentServiceInterface: PaymentServiceInterface
 ) => {
     const dbRepositoryHost = hostDbRepository(hostRrepositoryImpl());
     const dbRepositoryUser = userDbRepository(userDbRepositoryImpl());
     const cloudService = cloudServiceInterface(cloudServiceImpl());
+    const paymentService = paymentServiceInterface(paymentServiceImpl());
 
     const registerHost = asyncHandler(async (req: Request, res: Response) => {
         const host: {
@@ -40,16 +57,29 @@ const userController = (
     });
 
     const findUser = asyncHandler(async (req: Request, res: Response) => {
-        const id = new Types.ObjectId(req.params.id)
-        const user = await getUserById(id, dbRepositoryUser)
+        const id = new Types.ObjectId(req.params.id);
+        const user = await getUserById(id, dbRepositoryUser);
         res.json({
             status: "Success",
-            user
-        })
-
-    })
+            user,
+        });
+    });
     const createList = asyncHandler(async (req: Request, res: Response) => {
-        const { roomType, name, description, location, address, price, guest, bedroom, bathrooms, kitchen, balcony, amenities, userId } = req.body;
+        const {
+            roomType,
+            name,
+            description,
+            location,
+            address,
+            price,
+            guest,
+            bedroom,
+            bathrooms,
+            kitchen,
+            balcony,
+            amenities,
+            userId,
+        } = req.body;
 
         const list = {
             name,
@@ -63,8 +93,8 @@ const userController = (
             bathrooms: +bathrooms,
             kitchen: +kitchen,
             balcony: +balcony,
-            amenities,
-            userId
+            amenities: JSON.parse(amenities),
+            userId,
         };
         console.log(list);
 
@@ -73,38 +103,87 @@ const userController = (
             return file.path;
         });
         const imageUrl = await cloudService.uploadMultipleImage(paths);
-        const data = { ...list, imageUrl }
-        const createNewProperty = await createPropery(data, dbRepositoryUser)
+        const data = { ...list, imageUrl };
+        const createNewProperty = await createPropery(data, dbRepositoryUser);
         res.json({
-            status: 'success'
+            status: "success",
+        });
+    });
+
+    const findPropertyByUser = asyncHandler(
+        async (req: Request, res: Response) => {
+            const id = new Types.ObjectId(req.params.id);
+            const property = await getPropertyByUserId(id, dbRepositoryUser);
+            res.json({
+                status: "Success",
+                property,
+            });
+        }
+    );
+
+    const findAllProperty = asyncHandler(async (req: Request, res: Response) => {
+        const properties = await getAllProperty(dbRepositoryUser);
+
+        res.json({
+            status: "Success",
+            properties,
+        });
+    });
+
+    const findPropertyById = asyncHandler(async (req: Request, res: Response) => {
+        const id = new Types.ObjectId(req.params.id);
+        const property = await getPropertyById(id, dbRepositoryUser);
+        console.log(property);
+        res.json({
+            status: "Success",
+            property,
+        });
+    });
+    const checkOut = asyncHandler(async (req: Request, res: Response) => {
+        const data = req.body;
+        paymentService.paymentgate(req.body).then(async (paymentId) => {
+            req.session.verifyid = paymentId;
+
+            // console.log((req.session as any).verifyid);
+            
+            const order = { ...data, paymentId };
+            const orderItem = await createOrder(order, dbRepositoryUser);
+            res.json({
+                status: "Success",
+                paymentId,
+                orderId: orderItem._id,
+            });
+        });
+    });
+
+    const confirmOrder = asyncHandler(async (req: Request, res: Response) => {
+        console.log(req.body);
+        console.log("session"+(req.session as any).verifyid);
+        const { paymentId, orderId } = req.body;
+        const data = { paymentId, orderId: new Types.ObjectId(orderId) };
+        const orderConfirm = await confirmNewOrder(data, dbRepositoryUser, req);
+
+        console.log(orderConfirm);
+        res.json({
+            staus:"Success",
+            orderConfirm
         })
-
-    })
-
-    const findPropertyByUser=asyncHandler(async(req:Request,res:Response)=>{
-        const id=new Types.ObjectId(req.params.id)
-        const property= await getPropertyByUserId(id,dbRepositoryUser)
+    });
+    const findAllBooking=asyncHandler(async(req:Request,res:Response)=>{
+        const booking= await getAllBooking(dbRepositoryUser)
         res.json({
             status:'Success',
-            property
-        })    
-    })
-
-    const findAllProperty=asyncHandler(async(req:Request,res:Response)=>{
-        const properties=await getAllProperty(dbRepositoryUser)
-        res.json({
-            status:'Success',
-            properties
-
+            booking
         })
     })
-    
-    const findPropertyById=asyncHandler(async(req:Request,res:Response)=>{
-        const id=new Types.ObjectId(req.params.id)
-        const property=await getPropertyById(id,dbRepositoryUser)
+    const cancelOrder=asyncHandler(async(req:Request,res:Response)=>{
+        console.log(req.body);
+        
+        const bookingId=new Types.ObjectId(req.params.id)
+        const bookingCancel=await cancelBooking(bookingId,dbRepositoryUser)
         res.json({
-            status:'Success',
-            property
+            statue:'Success',
+            bookingCancel
         })
     })
 
@@ -114,8 +193,11 @@ const userController = (
         createList,
         findPropertyByUser,
         findAllProperty,
-        findPropertyById
-
+        findPropertyById,
+        checkOut,
+        confirmOrder,
+        findAllBooking,
+        cancelOrder
     };
 };
 export default userController;

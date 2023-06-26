@@ -27,7 +27,7 @@ const adminRouter = () => {
     router.post('/addPropertyType',upload.single('image'), controller.addPropertyType)
     router.get('/getAllPropertyType', controller.getAllPropertyType)
     router.delete('/removeAmenity/:id',controller.removeAmenity)
-    router.delete('removePropertyType/:id',)
+    router.delete('/removePropertyType/:id',controller.removePropertyType)
 
 
 

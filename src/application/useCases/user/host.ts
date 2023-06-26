@@ -7,6 +7,10 @@ import { HostDbInterface } from "../../repositories/hostDbRepository";
 import { UserDbInterface } from "../../repositories/userDbRepository";
 import { CreatePropertyInterface } from "../../../type/createPropertyInterface";
 import createPropertyEntity from "../../../../entity/property";
+import orderEntity from "../../../../entity/order";
+import { OrderInterface } from "../../../type/orderInterface";
+import { ConfirmOrderInterface } from "../../../type/confirmOrderInterface";
+
 
 export const hostRegister = async (
   host: HostInterface,
@@ -33,21 +37,50 @@ export const createPropery = async (
   const propertyData = await userRepository.addProperty(newProperty);
   return propertyData;
 };
-export const getPropertyByUserId=async(id:Types.ObjectId,userRepository:ReturnType<UserDbInterface>)=>{
-const property=await userRepository.findPropertybyUserId(id)
-return property
+export const getPropertyByUserId = async (id: Types.ObjectId, userRepository: ReturnType<UserDbInterface>) => {
+  const property = await userRepository.findPropertybyUserId(id)
+  return property
 
 }
-export const getAllProperty=async(
+export const getAllProperty = async (
   userRepository: ReturnType<UserDbInterface>
-)=>{
-  const property=await userRepository.findAllProperty()
+) => {
+  const property = await userRepository.findAllProperty()
   return property
 }
-export const getPropertyById=async(
-  id:Types.ObjectId,
+export const getPropertyById = async (
+  id: Types.ObjectId,
   userRepository: ReturnType<UserDbInterface>
-)=>{
-  const property=await userRepository.findPropertyById(id)
+) => {
+  const property = await userRepository.findPropertyById(id)
   return property
+}
+export const createOrder = async (data: OrderInterface, userRepository: ReturnType<UserDbInterface>) => {
+const newOrder=orderEntity(data)
+const orderdata=await userRepository.createNewOrder(newOrder)
+return orderdata
+
+}
+
+export const confirmNewOrder=async(data:ConfirmOrderInterface,userRepository:ReturnType<UserDbInterface>,req:Express.Request)=>{
+  const sessionVerifyId = req.session.verifyid
+  console.log('sessionid:'+sessionVerifyId);
+  console.log('data:'+data.paymentId);
+  
+  
+  if(data.paymentId===sessionVerifyId){
+    const confirmOrderData=await userRepository.orderConfirm(data)
+    return confirmOrderData
+  }
+  else{
+    throw new AppError("paymentId is not matched", HttpStatus.UNAUTHORIZED);
+  }
+}
+
+export const getAllBooking=async (userRepository:ReturnType<UserDbInterface>)=>{
+  const bookings= await userRepository.getAllBooking()
+  return bookings
+}
+export const cancelBooking=async(id:Types.ObjectId,userRepository:ReturnType<UserDbInterface>)=>{
+  return await userRepository.bookingCancel(id)
 }

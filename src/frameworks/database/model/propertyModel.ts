@@ -17,8 +17,8 @@ const propertySchema=new Schema({
     bathrooms: { type: Number },
     kitchen: { type: Number },
     balcony: { type: Number },
-    amenities: [{ type: String }],
-    userId: { type: Types.ObjectId },
+    amenities: [{ type: Types.ObjectId ,ref:'Amenity'}],
+    userId: { type: Types.ObjectId ,ref:'User'},
     imageUrl: [{type:String}]
 
 })

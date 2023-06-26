@@ -61,5 +61,6 @@ export const cloudService = () => {
     uploadMultipleImages
   };
 };
+
 export type CloudService = typeof cloudService;
 export type CloudServiceReturn = ReturnType<CloudService>;

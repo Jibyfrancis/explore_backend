@@ -49,19 +49,44 @@ export const userDbrepository = (
     getUserId: () => string;
     getImageUrl: () => string[];
   }) => {
-   
-    
+
+
     return await repository.addProperty(property);
   };
-  const findPropertybyUserId=async(id:Types.ObjectId)=>{
+  const findPropertybyUserId = async (id: Types.ObjectId) => {
     return await repository.findPropertybyUserId(id)
   }
-  const findAllProperty=async()=>{
+  const findAllProperty = async () => {
     return await repository.findAllProperty()
   }
 
-  const findPropertyById=async(id:Types.ObjectId)=>{
+  const findPropertyById = async (id: Types.ObjectId) => {
     return await repository.findAllPropertyById(id)
+  }
+  const createNewOrder = async (order: {
+    getpropertyName: () => string,
+    getPropertyName: () => string,
+    getPropertyAddress: () => string,
+    getImage: () => string,
+    getAdult: () => number,
+    getChildren: () => number,
+    getCheckIn: () => string,
+    getCheckOut: () => string,
+    getTotalPrice: () => number,
+    getPaymentId: () => string
+
+  }) => {
+    return await repository.addOrder(order)
+  }
+
+  const orderConfirm=async (data:any)=>{
+    return await repository.conformOrde(data)
+  }
+  const getAllBooking=async ()=>{
+    return await repository.findAllBooking()
+  }
+  const bookingCancel=async(id:Types.ObjectId)=>{
+    return await repository.cancelBooking(id)
   }
 
   return {
@@ -72,7 +97,11 @@ export const userDbrepository = (
     addProperty,
     findPropertybyUserId,
     findAllProperty,
-    findPropertyById
+    findPropertyById,
+    createNewOrder,
+    orderConfirm,
+    getAllBooking,
+    bookingCancel
   }
 };
 export type UserDbInterface = typeof userDbrepository;

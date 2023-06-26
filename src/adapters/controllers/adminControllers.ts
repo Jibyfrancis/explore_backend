@@ -9,7 +9,7 @@ import {
     findAllAmenity,
     addNewPropertyType,
     findAllPropertyType,
-    deleteAmenity
+    deleteAmenity,deletePropertyType
 } from "../../application/useCases/admin/usecaseAdmin";
 import { AdminDbInterface } from "../../application/repositories/adminDbRepository";
 import { AdminRepositoryMongoDB } from "../../frameworks/database/repositories/adminRerpositoryMongoDB";
@@ -118,6 +118,16 @@ const adminController = (
             status: 'Success',
             propertyType
         })
+    });
+
+    const removePropertyType=asyncHandler(async(req:Request,res:Response)=>{
+        console.log(req.params.id);
+        
+        const id:string=req.params.id
+        const data=await deletePropertyType(id,dbRepositoryAdmin,cloudService)
+        res.json({
+            status:"Success"
+        })
     })
 
 
@@ -130,7 +140,8 @@ const adminController = (
         getAllAmenity,
         addPropertyType,
         getAllPropertyType,
-        removeAmenity
+        removeAmenity,
+        removePropertyType
     };
 };
 export default adminController;

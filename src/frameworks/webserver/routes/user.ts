@@ -8,6 +8,8 @@ import { userRepositoryMongoDB } from '../../database/repositories/userRepositor
 import upload from '../middlewares/multer'
 import { cloudServiceInterface } from '../../../application/services/cloudServiceInterface'
 import { cloudService } from '../../services/cludService'
+import { paymentService } from '../../services/paymentService'
+import { paymentServiceInterface } from '../../../application/services/paymentserviceInterface'
 
 const userRouter=()=>{
     const router = express.Router()
@@ -17,7 +19,9 @@ const userRouter=()=>{
         userDbrepository,
         userRepositoryMongoDB,
         cloudServiceInterface,
-        cloudService
+        cloudService,
+        paymentService,
+        paymentServiceInterface
 
 
 
@@ -29,6 +33,11 @@ const userRouter=()=>{
     router.get('/user-property-list/:id',controller.findPropertyByUser)
     router.get('/get-all-property',controller.findAllProperty)
     router.get('/property-detail/:id',controller.findPropertyById)
+    router.post('/checkOut',controller.checkOut)
+    router.patch('/confirm-order',controller.confirmOrder)
+    router.get('/get-all-booking',controller.findAllBooking)
+    router.patch('/cancel-booking/:id',controller.cancelOrder)
+
     
     
 

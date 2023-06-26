@@ -2,7 +2,8 @@ import User from "../model/userModel";
 import { UserInterface } from "../../../type/userInterface";
 import { Types } from "mongoose";
 import Property from "../model/propertyModel";
-
+import Order from "../model/orderModel";
+import { ConfirmOrderInterface } from "../../../type/confirmOrderInterface";
 
 export const userRepositoryMongoDB = () => {
   const addUser = async (user: any) => {
@@ -22,7 +23,7 @@ export const userRepositoryMongoDB = () => {
 
   const findUserById = async (id: Types.ObjectId) => {
     const user: UserInterface | null = await User.findById(id);
-    return user
+    return user;
   };
 
   const addGoogleUser = async (user: {
@@ -49,22 +50,94 @@ export const userRepositoryMongoDB = () => {
       balcony: property.getBalcony(),
       amenities: property.getAmenities(),
       userId: property.getUserId(),
-      imageUrl: property.getImageUrl()
-    })
+      imageUrl: property.getImageUrl(),
+    });
 
-    return await Property.create(newProperty)
-   
+    return await Property.create(newProperty);
+  };
+  const findPropertybyUserId = async (id: Types.ObjectId) => {
+    return await Property.find({ userId: id });
+  };
+  const findAllProperty = async () => {
+    return await Property.find();
+  };
+  const findAllPropertyById = async (id: Types.ObjectId) => {
+    console.log(id);
+    return await Property.aggregate([
+      { $match: { _id: id } },
+
+      {
+        $lookup: {
+          from: "amenity",
+          localField: "amenities",
+          foreignField: "_id",
+          as: "amenity-details",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          description: 1,
+          roomType: 1,
+          address: 1,
+          price: 1,
+          guest: 1,
+          bedroom: 1,
+          bathrooms: 1,
+          kitchen: 1,
+          balcony: 1,
+          imageUrl: 1,
+          "amenity-details": 1,
+          "user.userName": 1,
+        },
+      },
+    ]);
+  };
+
+  const addOrder = async (order: any) => {
+    const newOrder = new Order({
+      propertyId:order.getpropertyId(),
+      propertyName: order.getPropertyName(),
+      propertyAddress: order.getPropertyAddress(),
+      image: order.getImage(),
+      adult: order.getAdult(),
+      children: order.getChildren(),
+      checkIn: order.getCheckIn(),
+      checkOut: order.getCheckOut(),
+      totalPrice: order.getTotalPrice(),
+      paymentId: order.getPaymentId(),
+      paymentStatus:order.getPaymentStatus()
+    })
+    return await Order.create(newOrder)
   }
-  const findPropertybyUserId=async(id:Types.ObjectId)=>{
-    return await Property.find({userId:id})
+
+  const conformOrde=async(data:ConfirmOrderInterface)=>{
+    return await Order.updateOne({_id:data.orderId},{$set:{paymentStatus:'success',bookingStatus:'success'}})
   }
-  const findAllProperty=async()=>{
-    return await Property.find()
+
+  const findAllBooking=async()=>{
+    return await Order.find()
   }
-  const findAllPropertyById=async(id:Types.ObjectId)=>{
-    return await Property.findOne(id)
+  const cancelBooking=async(id:Types.ObjectId)=>{
+    try{
+
+      return await Order.updateOne({_id:id},{$set:{bookingStatus:'cancelled'}})
+    }
+    catch(err){
+      console.log(err);
+      
+    }
   }
   
+
 
 
   return {
@@ -75,7 +148,11 @@ export const userRepositoryMongoDB = () => {
     addProperty,
     findPropertybyUserId,
     findAllProperty,
-    findAllPropertyById
+    findAllPropertyById,
+    addOrder,
+    conformOrde,
+    findAllBooking,
+    cancelBooking
   };
 };
 export type UserRepositoryMongoDB = typeof userRepositoryMongoDB;

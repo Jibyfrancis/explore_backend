@@ -68,9 +68,6 @@ export const deleteAmenity = async (
     await cloudService.deleteImage(imageUrl)
     const deleteAmenity = await adminRepository.deleteAmenity(id)
     return deleteAmenity
-
-
-
 }
 
 export const addNewPropertyType = async (
@@ -87,5 +84,17 @@ export const findAllPropertyType = async (
 ) => {
     const propertyType = await adminRepository.getAllPropertyType()
     return propertyType
+}
+
+export const deletePropertyType = async (
+    id: string,
+    adminRepository: ReturnType<AdminDbInterface>,
+    cloudService: ReturnType<CloudServiceInterface>
+) => {
+    const propertyType: PropertyTypeInterface | null = await adminRepository.findPropertyTypeById(id)
+    const imageUrl = propertyType?.imageUrl ?? ""
+    await cloudService.deleteImage(imageUrl)
+    const removeAmenity=await adminRepository.deletePropertyType(id)
+    return removeAmenity
 }
 

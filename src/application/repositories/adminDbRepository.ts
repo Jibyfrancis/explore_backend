@@ -51,6 +51,13 @@ export const adminDbReopsitory = (
     return await repository.getAllPropertyType();
   }
 
+    const findPropertyTypeById=async(id:string)=>{
+    return await repository.findPropertyTypeById(id);
+  }
+  const deletePropertyType=async(id:string)=>{
+    return await repository.deletePropertyType(id)
+  }
+
 
 
   return {
@@ -64,7 +71,9 @@ export const adminDbReopsitory = (
     createPropertyType,
     getAllPropertyType,
     findAmenityById,
-    deleteAmenity
+    deleteAmenity,
+    findPropertyTypeById,
+    deletePropertyType
     
     
   };
