@@ -1,6 +1,7 @@
 import { Server } from "http";
 import configKeys from "../../config";
 
+
 const ServerConfig=(server:Server)=>{
     const startServer=()=>{
         server.listen(configKeys.port,()=>{

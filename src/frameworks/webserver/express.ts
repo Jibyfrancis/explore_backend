@@ -4,6 +4,7 @@ import cors from 'cors';
 import session from 'express-session';
 import configKeys from "../../config";
 
+
 declare module 'express-session' {
   export interface SessionData {
     verifyid:string ;
@@ -25,6 +26,7 @@ const expressConfig=(app:Application)=>{
           },
         })
       );
+      
 
 
 }

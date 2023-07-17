@@ -55,8 +55,11 @@ export const userRepositoryMongoDB = () => {
 
     return await Property.create(newProperty);
   };
+  
   const findPropertybyUserId = async (id: Types.ObjectId) => {
-    return await Property.find({ userId: id });
+    return await Property.find({
+      userId: id,
+    });
   };
   const findAllProperty = async () => {
     return await Property.find();
@@ -71,7 +74,7 @@ export const userRepositoryMongoDB = () => {
           from: "amenity",
           localField: "amenities",
           foreignField: "_id",
-          as: "amenity-details",
+          as: "amenitydetails",
         },
       },
       {
@@ -88,6 +91,7 @@ export const userRepositoryMongoDB = () => {
           description: 1,
           roomType: 1,
           address: 1,
+          location:1,
           price: 1,
           guest: 1,
           bedroom: 1,
@@ -95,7 +99,7 @@ export const userRepositoryMongoDB = () => {
           kitchen: 1,
           balcony: 1,
           imageUrl: 1,
-          "amenity-details": 1,
+          amenitydetails: 1,
           "user.userName": 1,
         },
       },
@@ -104,7 +108,7 @@ export const userRepositoryMongoDB = () => {
 
   const addOrder = async (order: any) => {
     const newOrder = new Order({
-      propertyId:order.getpropertyId(),
+      propertyId: order.getpropertyId(),
       propertyName: order.getPropertyName(),
       propertyAddress: order.getPropertyAddress(),
       image: order.getImage(),
@@ -114,31 +118,49 @@ export const userRepositoryMongoDB = () => {
       checkOut: order.getCheckOut(),
       totalPrice: order.getTotalPrice(),
       paymentId: order.getPaymentId(),
-      paymentStatus:order.getPaymentStatus()
-    })
-    return await Order.create(newOrder)
-  }
+      paymentStatus: order.getPaymentStatus(),
+    });
+    return await Order.create(newOrder);
+  };
 
-  const conformOrde=async(data:ConfirmOrderInterface)=>{
-    return await Order.updateOne({_id:data.orderId},{$set:{paymentStatus:'success',bookingStatus:'success'}})
-  }
+  const conformOrde = async (data: ConfirmOrderInterface) => {
+    return await Order.updateOne(
+      { _id: data.orderId },
+      { $set: { paymentStatus: "success", bookingStatus: "success" } }
+    );
+  };
 
-  const findAllBooking=async()=>{
-    return await Order.find()
-  }
-  const cancelBooking=async(id:Types.ObjectId)=>{
-    try{
-
-      return await Order.updateOne({_id:id},{$set:{bookingStatus:'cancelled'}})
-    }
-    catch(err){
+  const findAllBooking = async () => {
+    return await Order.find();
+  };
+  const cancelBooking = async (id: Types.ObjectId) => {
+    try {
+      return await Order.updateOne(
+        { _id: id },
+        { $set: { bookingStatus: "cancelled" } }
+      );
+    } catch (err) {
       console.log(err);
-      
     }
-  }
-  
+  };
 
+  const searchProperty = async (data: any) => {
+    console.log("formdb" + data.searchKey);
+    const searchKey = data.searchKey[0];
+    try {
+      return await Property.find({ "address": { $regex: searchKey } });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  const deletePropertyById = async (id: Types.ObjectId) => {
+    try {
+      return await Property.deleteOne({ _id: id });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return {
     addUser,
@@ -152,7 +174,9 @@ export const userRepositoryMongoDB = () => {
     addOrder,
     conformOrde,
     findAllBooking,
-    cancelBooking
+    cancelBooking,
+    searchProperty,
+    deletePropertyById,
   };
 };
 export type UserRepositoryMongoDB = typeof userRepositoryMongoDB;

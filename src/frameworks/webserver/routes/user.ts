@@ -29,7 +29,7 @@ const userRouter=()=>{
 
     router.post('/host-request',authMiddleware,controller.registerHost)
     router.get('/user/:id',controller.findUser)
-    router.post('/createList',upload.array('photos'),controller.createList)
+    router.post('/add-new-property',upload.array('photos'),controller.createList)
     router.get('/user-property-list/:id',controller.findPropertyByUser)
     router.get('/get-all-property',controller.findAllProperty)
     router.get('/property-detail/:id',controller.findPropertyById)
@@ -37,6 +37,9 @@ const userRouter=()=>{
     router.patch('/confirm-order',controller.confirmOrder)
     router.get('/get-all-booking',controller.findAllBooking)
     router.patch('/cancel-booking/:id',controller.cancelOrder)
+    router.post('/search-property',controller.findSearchProperty)
+    router.delete('/remove-property/:id',controller.removeProperty)
+    router.put('/edit-property',upload.array('photos'),controller.editProperty)
 
     
     

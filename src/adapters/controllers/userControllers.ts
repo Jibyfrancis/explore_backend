@@ -12,7 +12,10 @@ import {
     createOrder,
     confirmNewOrder,
     getAllBooking,
-    cancelBooking
+    cancelBooking,
+    seachProperty,
+    deletePropertyType,
+    updateProperty
 } from "../../application/useCases/user/host";
 import { Types } from "mongoose";
 import { UserDbInterface } from "../../application/repositories/userDbRepository";
@@ -65,6 +68,8 @@ const userController = (
         });
     });
     const createList = asyncHandler(async (req: Request, res: Response) => {
+        console.log(req.body);
+
         const {
             roomType,
             name,
@@ -98,13 +103,15 @@ const userController = (
         };
         console.log(list);
 
-        const photos = req.files as Express.Multer.File[];
-        const paths = photos.map((file) => {
-            return file.path;
-        });
-        const imageUrl = await cloudService.uploadMultipleImage(paths);
-        const data = { ...list, imageUrl };
-        const createNewProperty = await createPropery(data, dbRepositoryUser);
+        // const photos = req.files as Express.Multer.File[];
+        // console.log(photos);
+
+        // const paths = photos.map((file) => {
+        //     return file.path;
+        // });
+        // const imageUrl = await cloudService.uploadMultipleImage(paths);
+        // const data = { ...list, imageUrl };
+        // const createNewProperty = await createPropery(data, dbRepositoryUser);
         res.json({
             status: "success",
         });
@@ -145,7 +152,7 @@ const userController = (
             req.session.verifyid = paymentId;
 
             // console.log((req.session as any).verifyid);
-            
+
             const order = { ...data, paymentId };
             const orderItem = await createOrder(order, dbRepositoryUser);
             res.json({
@@ -158,33 +165,114 @@ const userController = (
 
     const confirmOrder = asyncHandler(async (req: Request, res: Response) => {
         console.log(req.body);
-        console.log("session"+(req.session as any).verifyid);
+        console.log("session" + (req.session as any).verifyid);
         const { paymentId, orderId } = req.body;
         const data = { paymentId, orderId: new Types.ObjectId(orderId) };
         const orderConfirm = await confirmNewOrder(data, dbRepositoryUser, req);
 
         console.log(orderConfirm);
         res.json({
-            staus:"Success",
+            staus: "Success",
             orderConfirm
         })
     });
-    const findAllBooking=asyncHandler(async(req:Request,res:Response)=>{
-        const booking= await getAllBooking(dbRepositoryUser)
+    const findAllBooking = asyncHandler(async (req: Request, res: Response) => {
+        const booking = await getAllBooking(dbRepositoryUser)
         res.json({
-            status:'Success',
+            status: 'Success',
             booking
         })
     })
-    const cancelOrder=asyncHandler(async(req:Request,res:Response)=>{
+    const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
         console.log(req.body);
-        
-        const bookingId=new Types.ObjectId(req.params.id)
-        const bookingCancel=await cancelBooking(bookingId,dbRepositoryUser)
+
+        const bookingId = new Types.ObjectId(req.params.id)
+        const bookingCancel = await cancelBooking(bookingId, dbRepositoryUser)
         res.json({
-            statue:'Success',
+            status: 'Success',
             bookingCancel
         })
+    })
+    const findSearchProperty = asyncHandler(async (req: Request, res: Response) => {
+        console.log(req.body)
+        const searchKeys = req.body.address.split(',').filter((keyword: string) => keyword[0].trim())
+        const data = {
+            searchKey: searchKeys,
+            from: req.body.from,
+            to: req.body.to
+        }
+        console.log(data);
+        const propertySearch = await seachProperty(data, dbRepositoryUser)
+        console.log(propertySearch);
+        res.json({
+            status: "Success",
+            propertySearch
+        })
+    })
+
+    const editProperty = asyncHandler(async (req: Request, res: Response) => {
+        // console.log(req.body);
+        const {
+            roomType,
+            name,
+            description,
+            location,
+            address,
+            price,
+            guest,
+            bedroom,
+            bathrooms,
+            kitchen,
+            balcony,
+            amenities,
+            userId,
+            imageurls
+        } = req.body;
+
+        const list = {
+            name,
+            description,
+            roomType,
+            location: JSON.parse(location),
+            address: JSON.parse(address),
+            price: +price,
+            guest: +guest,
+            bedroom: +bedroom,
+            bathrooms: +bathrooms,
+            kitchen: +kitchen,
+            balcony: +balcony,
+            amenities: JSON.parse(amenities),
+            imageUrls: JSON.parse(imageurls),
+            userId,
+
+        };
+        console.log(list);
+        const proId=new Types.ObjectId(req.body.proId)
+        const dltimg = JSON.parse(req.body.deleteimg)
+        console.log(dltimg);
+        const photos = req.files as Express.Multer.File[];
+        const paths = photos.map((file) => {
+            return file.path;
+        });
+        const dlt = await cloudService.deleteMultiples(dltimg)
+        const urls = await cloudService.uploadMultipleImage(paths);
+        list.imageUrls.push(...urls)
+        console.log(list.imageUrls);
+        const data=await updateProperty(proId,list,dbRepositoryUser)
+        
+        
+    })
+
+    const removeProperty = asyncHandler(async (req: Request, res: Response) => {
+        console.log(req.params.id);
+        const propertyId = new Types.ObjectId(req.params.id)
+        const data = await deletePropertyType(propertyId, dbRepositoryUser, cloudService)
+        res.json({
+            status: 'Success',
+
+        })
+
+
     })
 
     return {
@@ -197,7 +285,10 @@ const userController = (
         checkOut,
         confirmOrder,
         findAllBooking,
-        cancelOrder
+        cancelOrder,
+        findSearchProperty,
+        editProperty,
+        removeProperty
     };
 };
 export default userController;

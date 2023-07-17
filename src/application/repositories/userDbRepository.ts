@@ -88,6 +88,12 @@ export const userDbrepository = (
   const bookingCancel=async(id:Types.ObjectId)=>{
     return await repository.cancelBooking(id)
   }
+  const searchingProperty=async(data:any)=>{
+    return await repository.searchProperty(data)
+  }
+  const deleteProperty=async(id:Types.ObjectId)=>{
+    return await repository.deletePropertyById(id)
+  }
 
   return {
     addUser,
@@ -101,7 +107,9 @@ export const userDbrepository = (
     createNewOrder,
     orderConfirm,
     getAllBooking,
-    bookingCancel
+    bookingCancel,
+    searchingProperty,
+    deleteProperty
   }
 };
 export type UserDbInterface = typeof userDbrepository;

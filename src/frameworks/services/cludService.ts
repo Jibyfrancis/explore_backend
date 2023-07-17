@@ -1,3 +1,4 @@
+import { resolve } from "path";
 import configKeys from "../../config";
 const cloudinary = require("cloudinary").v2;
 const extractPublicId = require('cloudinary-build-url').extractPublicId;
@@ -35,12 +36,12 @@ export const cloudService = () => {
         });
       });
     });
-  
+
     const urls = await Promise.all(uploadPromises);
-  
+
     return urls;
   };
-  
+
 
   const deleteImage = async (imageUrl: string): Promise<string> => {
     const publicId = extractPublicId(imageUrl);
@@ -55,10 +56,30 @@ export const cloudService = () => {
     return result as string;
   };
 
+  const deleteMultiple = async (imageUrls: string[]): Promise<string[]> => {
+    const publicId = imageUrls.map((ids) => {
+      return extractPublicId(ids)
+    })
+    const deletePromise = publicId.map((ids: string) => {
+      return new Promise((resolve, reject) => {
+        cloudinary.uploader.destroy(ids, function (error: any, result: any) {
+          if (error) {
+            console.log(error);
+          }
+          resolve(result)
+        })
+      })
+    })
+    const result = await Promise.all(deletePromise);
+    return result as []
+
+  }
+
   return {
     uploadImage,
     deleteImage,
-    uploadMultipleImages
+    uploadMultipleImages,
+    deleteMultiple
   };
 };
 
